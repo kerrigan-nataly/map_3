@@ -4,7 +4,7 @@ from PIL import Image
 from PyQt5 import uic
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import QApplication, QMainWindow, QSlider
-import yandex_map_helper
+import yandex_map_helper 
 
 
 class MyWidget(QMainWindow):
@@ -37,18 +37,15 @@ class MyWidget(QMainWindow):
             self.errorlabel.setText('Координаты должны быть разделены пробелом')
             
         map_params = yandex_map_helper.set_map_params(toponym_longitude, toponym_lattitude, self.verticalSlider.value())
-
-        print(1)
         map_api_server = "http://static-maps.yandex.ru/1.x/"
         response = requests.get(map_api_server, params=map_params)
-        print(2)
+        
         try:
             result = Image.open(BytesIO(response.content))
             result.save('res.png')
             self.errorlabel.setText('')
-            print(3)
-
-            self.picture.setPixmap(QPixmap('res.png'))
+            
+            self.picture.setPixmap(QPixmap('res.png'))  
             self.last_coords = self.coordinates.text().split(" ")
         except:
             self.coordinates.setText(" ".join(self.last_coords))
