@@ -1,9 +1,11 @@
 import sys, requests
 from io import BytesIO
 from PIL import Image
+from PyQt5.Qt import Qt
 from PyQt5 import uic
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import QApplication, QMainWindow, QSlider
+
 import yandex_map_helper 
 
 
@@ -15,6 +17,9 @@ class MyWidget(QMainWindow):
     def initUI(self):
         uic.loadUi('interface.ui', self)
 
+        self.last_coords = "30.315635 59.938951"
+        self.coordinates.setText(self.last_coords)
+
         self.verticalSlider.setTickInterval(17)
         self.verticalSlider.setMinimum(0)
         self.verticalSlider.setMaximum(17)
@@ -22,10 +27,14 @@ class MyWidget(QMainWindow):
         self.verticalSlider.setTickPosition(QSlider.TicksBelow)
 
         self.verticalSlider.setValue(12)
-        
+
         self.pushButton.clicked.connect(self.get_map)
-        #self.coordinates.textChanged.connect(self.get_map)
-        self.get_map()
+
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key_PageUp:
+            self.zoom(1)
+        elif event.key() == Qt.Key_PageDown:
+            self.zoom(-1)
 
     def get_map(self):
         #print(self.verticalSlider.value())
@@ -51,7 +60,8 @@ class MyWidget(QMainWindow):
             self.coordinates.setText(" ".join(self.last_coords))
             self.errorlabel.setText('Какие-то стремные координаты')
             
-            
+    def zoom(self, value):
+        self.verticalSlider.setValue(self.verticalSlider.value() + value)
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)

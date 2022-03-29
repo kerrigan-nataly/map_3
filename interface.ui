@@ -34,7 +34,7 @@
      <item>
       <widget class="QLineEdit" name="coordinates">
        <property name="text">
-        <string>30.315635 59.938951</string>
+        <string/>
        </property>
       </widget>
      </item>
@@ -57,7 +57,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>TextLabel</string>
+     <string/>
     </property>
    </widget>
    <widget class="QSlider" name="verticalSlider">
@@ -83,7 +83,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>TextLabel</string>
+     <string/>
     </property>
    </widget>
   </widget>
