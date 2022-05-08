@@ -2,17 +2,20 @@ import sys, requests
 from io import BytesIO
 from PIL import Image
 from PyQt5 import uic
-from PyQt5.QtCore import QDateTime, Qt
 from PyQt5.QtGui import QPixmap
-from PyQt5.QtWidgets import QApplication, QMainWindow, QSlider, QDialog, QVBoxLayout, QDateTimeEdit, QDialogButtonBox, \
-    QTextEdit, QLineEdit, QLabel, QComboBox
-import yandex_map_helper 
+from PyQt5.QtWidgets import QApplication, QMainWindow, QDialog, QVBoxLayout, QDialogButtonBox, \
+    QLineEdit, QComboBox
+from PyQt5.QtCore import *
+
+import yandex_map_helper
 
 
 class MyWidget(QMainWindow):
     def __init__(self):
         super().__init__()
         self.zoom = 0.2
+        self.place = ''
+        self.place_point = ''
         self.map_type = 'map'
         self.last_coordinates = '30.315635 59.938951'
         self.initUI()
@@ -22,21 +25,57 @@ class MyWidget(QMainWindow):
         self.zoomButton.clicked.connect(self.get_zoom)
         self.coordsButton.clicked.connect(self.get_coords)
         self.mapTypeButton.clicked.connect(self.map_type_select)
+        self.searchButton.clicked.connect(self.searchPlace)
+        # self.placeLineEdit.clicked.connect(self.place_grab_focus)
+        self.placeLineEdit.installEventFilter(self)
+        self.get_map()
 
+    def eventFilter(self, object, event):
+        if event.type() == QEvent.Enter:
+            self.releaseKeyboard()
+            self.placeLineEdit.setFocusPolicy(Qt.StrongFocus)
+            self.placeLineEdit.setReadOnly(False)
+            return True
+        return False
+
+    def searchPlace(self):
+        place = self.placeLineEdit.text()
+        map_params = {
+            "apikey": '40d1649f-0493-4b70-98ba-98533de7710b',
+            "geocode": place,
+            "results": '1',
+            "lang": "ru_RU",
+            "format": "json"
+        }
+        map_api_server = "https://geocode-maps.yandex.ru/1.x"
+        response = requests.get(map_api_server, params=map_params)
+        json_response = response.json()
+        data = json_response['response']['GeoObjectCollection']['featureMember'][0]['GeoObject']
+        coordinates = data['Point']['pos']
+        self.place = data['name']
+        self.place_point = coordinates
+        self.coordinates.setText(coordinates)
+
+        self.placeLineEdit.setReadOnly(True)
+        self.placeLineEdit.setFocusPolicy(Qt.NoFocus)
+        self.grabKeyboard()
         self.get_map()
 
     def get_zoom(self):
+        self.releaseKeyboard()
         zoom, ok = ZoomDialog.get_zoom(self.zoom)
         self.zoom = zoom
         self.get_map()
 
     def get_coords(self):
+        self.releaseKeyboard()
         coordinates, ok = CoordsDialog.get_coordinates(self.last_coordinates)
         if ok:
             self.coordinates.setText(coordinates)
             self.get_map()
 
     def map_type_select(self):
+        self.releaseKeyboard()
         map_type, ok = MapTypeDialog.get_type(self.map_type)
         if ok:
             self.map_type = map_type
@@ -70,6 +109,9 @@ class MyWidget(QMainWindow):
             "size": '450,450',
             "l": self.map_type
         }
+        if len(self.place) > 0:
+            long, lat = self.place_point.split(" ")
+            map_params['pt'] = f'{long},{lat},pm2rdm'
         map_api_server = "http://static-maps.yandex.ru/1.x/"
         response = requests.get(map_api_server, params=map_params)
         
