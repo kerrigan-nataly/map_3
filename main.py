@@ -12,12 +12,12 @@ import yandex_map_helper
 class MyWidget(QMainWindow):
     def __init__(self):
         super().__init__()
+        self.zoom = 0.2
+        self.last_coordinates = '30.315635 59.938951'
         self.initUI()
 
     def initUI(self):
         uic.loadUi('interface.ui', self)
-        self.zoom = 12
-        self.last_coords = '30.315635 59.938951'
         self.zoomButton.clicked.connect(self.get_zoom)
         self.coordsButton.clicked.connect(self.get_coords)
 
@@ -29,22 +29,39 @@ class MyWidget(QMainWindow):
         self.get_map()
 
     def get_coords(self):
-        coords, ok = CoordsDialog.get_coordinates(self.last_coords)
+        coordinates, ok = CoordsDialog.get_coordinates(self.last_coordinates)
         if ok:
-            self.coordinates.setText(coords)
+            self.coordinates.setText(coordinates)
             self.get_map()
 
     def get_map(self):
-        #print(self.verticalSlider.value())
-
         try:
-            toponym_longitude, toponym_lattitude = self.coordinates.text().split(" ")
+            toponym_longitude, toponym_latitude = self.coordinates.text().split(" ")
         except:
-            self.coordinates.setText(" ".join(self.last_coords))
-            toponym_longitude, toponym_lattitude = self.last_coords
+            self.coordinates.setText(" ".join(self.last_coordinates))
+            toponym_longitude, toponym_latitude = self.last_coordinates
             self.errorlabel.setText('Координаты должны быть разделены пробелом')
-            
-        map_params = yandex_map_helper.set_map_params(toponym_longitude, toponym_lattitude, self.zoom)
+
+        # map_params = {
+        #     "ll": ",".join([toponym_longitude, toponym_latitude]),
+        #     "spn": f'{float(self.zoom)},{float(self.zoom)}',
+        #     "size": '431,431',
+        #     "l": 'map'
+        # }
+
+        bblb = ','.join([
+            str(float(toponym_longitude) + float(self.zoom)),
+            str(float(toponym_latitude) - float(self.zoom))
+        ])
+        bbrt = ','.join([
+            str(float(toponym_longitude) - float(self.zoom)),
+            str(float(toponym_latitude) + float(self.zoom))
+        ])
+        map_params = {
+            "bbox": f'{bblb}~{bbrt}',
+            "size": '450,450',
+            "l": 'map'
+        }
         map_api_server = "http://static-maps.yandex.ru/1.x/"
         response = requests.get(map_api_server, params=map_params)
         
@@ -54,20 +71,26 @@ class MyWidget(QMainWindow):
             self.errorlabel.setText('')
             
             self.picture.setPixmap(QPixmap('res.png'))  
-            self.last_coords = self.coordinates.text().split(" ")
+            self.last_coordinates = self.coordinates.text().split(" ")
         except:
-            self.coordinates.setText(" ".join(self.last_coords))
+            self.coordinates.setText(" ".join(self.last_coordinates))
             self.errorlabel.setText('Какие-то стремные координаты')
 
     def keyPressEvent(self, e):
+        mult = 3
+        toponym_longitude, toponym_latitude = self.coordinates.text().split(" ")
         if e.key() == Qt.Key_Up:
-            print("up")
+            toponym_latitude = str(float(toponym_latitude) + float(self.zoom) * mult)
         elif e.key() == Qt.Key_Down:
-            print("down")
-        elif e.key() == Qt.Key_Left:
-            print("left")
+            toponym_latitude = str(float(toponym_latitude) - float(self.zoom) * mult)
         elif e.key() == Qt.Key_Right:
-            print("right")
+            toponym_longitude = str(float(toponym_longitude) + float(self.zoom) * mult * 2)
+        elif e.key() == Qt.Key_Left:
+            toponym_longitude = str(float(toponym_longitude) - float(self.zoom) * mult * 2)
+
+        self.coordinates.setText(' '.join([toponym_longitude, toponym_latitude]))
+        self.get_map()
+
 
 class CoordsDialog(QDialog):
     def __init__(self, last_coords, parent=None):
