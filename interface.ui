@@ -32,16 +32,29 @@
       </widget>
      </item>
      <item>
-      <widget class="QLineEdit" name="coordinates">
+      <widget class="QLabel" name="coordinates">
        <property name="text">
         <string>30.315635 59.938951</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="pushButton">
+      <widget class="QPushButton" name="coordsButton">
+       <property name="focusPolicy">
+        <enum>Qt::NoFocus</enum>
+       </property>
        <property name="text">
-        <string>Показать карту</string>
+        <string>Новые координаты</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="zoomButton">
+       <property name="focusPolicy">
+        <enum>Qt::NoFocus</enum>
+       </property>
+       <property name="text">
+        <string>zoom</string>
        </property>
       </widget>
      </item>
@@ -58,19 +71,6 @@
     </property>
     <property name="text">
      <string>TextLabel</string>
-    </property>
-   </widget>
-   <widget class="QSlider" name="verticalSlider">
-    <property name="geometry">
-     <rect>
-      <x>400</x>
-      <y>50</y>
-      <width>19</width>
-      <height>501</height>
-     </rect>
-    </property>
-    <property name="orientation">
-     <enum>Qt::Vertical</enum>
     </property>
    </widget>
    <widget class="QLabel" name="errorlabel">
