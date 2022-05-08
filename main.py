@@ -20,6 +20,7 @@ class MyWidget(QMainWindow):
         self.last_coords = '30.315635 59.938951'
         self.zoomButton.clicked.connect(self.get_zoom)
         self.coordsButton.clicked.connect(self.get_coords)
+
         self.get_map()
 
     def get_zoom(self):
