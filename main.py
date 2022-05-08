@@ -5,7 +5,7 @@ from PyQt5 import uic
 from PyQt5.QtCore import QDateTime, Qt
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import QApplication, QMainWindow, QSlider, QDialog, QVBoxLayout, QDateTimeEdit, QDialogButtonBox, \
-    QTextEdit, QLineEdit, QLabel
+    QTextEdit, QLineEdit, QLabel, QComboBox
 import yandex_map_helper 
 
 
@@ -13,6 +13,7 @@ class MyWidget(QMainWindow):
     def __init__(self):
         super().__init__()
         self.zoom = 0.2
+        self.map_type = 'map'
         self.last_coordinates = '30.315635 59.938951'
         self.initUI()
 
@@ -20,6 +21,7 @@ class MyWidget(QMainWindow):
         uic.loadUi('interface.ui', self)
         self.zoomButton.clicked.connect(self.get_zoom)
         self.coordsButton.clicked.connect(self.get_coords)
+        self.mapTypeButton.clicked.connect(self.map_type_select)
 
         self.get_map()
 
@@ -32,6 +34,12 @@ class MyWidget(QMainWindow):
         coordinates, ok = CoordsDialog.get_coordinates(self.last_coordinates)
         if ok:
             self.coordinates.setText(coordinates)
+            self.get_map()
+
+    def map_type_select(self):
+        map_type, ok = MapTypeDialog.get_type(self.map_type)
+        if ok:
+            self.map_type = map_type
             self.get_map()
 
     def get_map(self):
@@ -60,7 +68,7 @@ class MyWidget(QMainWindow):
         map_params = {
             "bbox": f'{bblb}~{bbrt}',
             "size": '450,450',
-            "l": 'map'
+            "l": self.map_type
         }
         map_api_server = "http://static-maps.yandex.ru/1.x/"
         response = requests.get(map_api_server, params=map_params)
@@ -116,6 +124,33 @@ class CoordsDialog(QDialog):
         result = dialog.exec_()
         coords = dialog.coords_field.text()
         return (coords, result == QDialog.Accepted)
+
+
+class MapTypeDialog(QDialog):
+    def __init__(self, current_type, parent=None):
+        super(MapTypeDialog, self).__init__(parent)
+
+        layout = QVBoxLayout(self)
+        self.map_type = QComboBox(self)
+        self.map_type.addItem("map")
+        self.map_type.addItem("sat")
+        self.map_type.addItem("sat,skl")
+        layout.addWidget(self.map_type)
+
+        # OK and Cancel buttons
+        buttons = QDialogButtonBox(
+            QDialogButtonBox.Ok | QDialogButtonBox.Cancel,
+            Qt.Horizontal, self)
+        buttons.accepted.connect(self.accept)
+        buttons.rejected.connect(self.reject)
+        layout.addWidget(buttons)
+
+    @staticmethod
+    def get_type(current_type, parent=None):
+        dialog = MapTypeDialog(current_type=current_type, parent=parent)
+        result = dialog.exec_()
+        map_type = dialog.map_type.currentText()
+        return (map_type, result == QDialog.Accepted)
 
 
 class ZoomDialog(QDialog):
