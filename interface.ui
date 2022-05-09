@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>469</width>
-    <height>604</height>
+    <height>636</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -131,6 +131,19 @@
       </widget>
      </item>
     </layout>
+   </widget>
+   <widget class="QLabel" name="searchResultText">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>570</y>
+      <width>451</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>TextLabel</string>
+    </property>
    </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">

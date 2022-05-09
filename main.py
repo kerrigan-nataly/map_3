@@ -28,6 +28,7 @@ class MyWidget(QMainWindow):
         self.searchButton.clicked.connect(self.searchPlace)
         self.resetButton.clicked.connect(self.resetPlace)
         self.placeLineEdit.installEventFilter(self)
+        self.searchResultText.setText('Введите поисковый запрос и нажмите "искать"')
         self.get_map()
 
     def eventFilter(self, object, event):
@@ -40,6 +41,7 @@ class MyWidget(QMainWindow):
 
     def resetPlace(self):
         self.placeLineEdit.setText('')
+        self.searchResultText.setText('')
         self.place = ''
         self.place_point = ''
         self.get_map()
@@ -59,6 +61,7 @@ class MyWidget(QMainWindow):
         data = json_response['response']['GeoObjectCollection']['featureMember'][0]['GeoObject']
         coordinates = data['Point']['pos']
         self.place = data['name']
+        self.searchResultText.setText(data['metaDataProperty']['GeocoderMetaData']['text'])
         self.place_point = coordinates
         self.coordinates.setText(coordinates)
 
