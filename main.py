@@ -26,6 +26,7 @@ class MyWidget(QMainWindow):
         self.coordsButton.clicked.connect(self.get_coords)
         self.mapTypeButton.clicked.connect(self.map_type_select)
         self.searchButton.clicked.connect(self.searchPlace)
+        self.resetButton.clicked.connect(self.resetPlace)
         self.placeLineEdit.installEventFilter(self)
         self.get_map()
 
@@ -36,6 +37,12 @@ class MyWidget(QMainWindow):
             self.placeLineEdit.setReadOnly(False)
             return True
         return False
+
+    def resetPlace(self):
+        self.placeLineEdit.setText('')
+        self.place = ''
+        self.place_point = ''
+        self.get_map()
 
     def searchPlace(self):
         place = self.placeLineEdit.text()
