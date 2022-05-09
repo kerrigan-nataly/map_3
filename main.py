@@ -26,7 +26,6 @@ class MyWidget(QMainWindow):
         self.coordsButton.clicked.connect(self.get_coords)
         self.mapTypeButton.clicked.connect(self.map_type_select)
         self.searchButton.clicked.connect(self.searchPlace)
-        # self.placeLineEdit.clicked.connect(self.place_grab_focus)
         self.placeLineEdit.installEventFilter(self)
         self.get_map()
 
